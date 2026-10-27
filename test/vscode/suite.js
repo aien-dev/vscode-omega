@@ -56,7 +56,11 @@ exports.run = async function run() {
     tabSize: 4,
     insertSpaces: true,
   });
-  assert.ok(edits && edits.length === 1, 'one formatting edit');
-  assert.strictEqual(edits[0].newText, 'note keep  this\nfn main to int\n    ret 0\nend\n');
-  console.log('PASS format');
+  // VS Code may shrink the provider's whole-document edit into smaller ones, so apply them and compare.
+  assert.ok(edits && edits.length > 0, `formatting edits, got ${JSON.stringify(edits)}`);
+  const we = new vscode.WorkspaceEdit();
+  we.set(messy.uri, edits);
+  assert.ok(await vscode.workspace.applyEdit(we), 'formatting edits apply');
+  assert.strictEqual(messy.getText(), 'note keep  this\nfn main to int\n    ret 0\nend\n');
+  console.log('PASS format', edits.length, 'edit(s)');
 };
