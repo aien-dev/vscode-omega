@@ -102,21 +102,15 @@ jobs:
           v=$(node -p 'require("./package.json").version')
           npx --no-install vsce package --no-dependencies -o "omega-$v.vsix"
           sha256sum "omega-$v.vsix" | tee "omega-$v.vsix.sha256"
-          unzip -l "omega-$v.vsix"
-          for f in extension/package.json extension/extension.js extension/omc.js extension/syntaxes/omega.tmLanguage.json \
-                   extension/language-configuration.json extension/snippets/omega.json extension/LICENSE.txt; do
-            unzip -l "omega-$v.vsix" | grep -q " $f\$" || { echo "missing $f"; exit 1; }
-          done
-          if unzip -l "omega-$v.vsix" | grep -Eq ' extension/(test|node_modules)/'; then echo "tests or node_modules shipped"; exit 1; fi
-      - name: Negative control 4, vsce refuses a manifest without a publisher
+          sh test/check-vsix.sh "omega-$v.vsix"
+      - name: Negative control 4, a package built without .vscodeignore must fail the package check
         run: |
           set -u
-          d="$RUNNER_TEMP/neg3"; mkdir -p "$d"
-          cp -r package.json extension.js omc.js syntaxes snippets language-configuration.json LICENSE README.md "$d/"
-          node -e 'const f=process.argv[1];const p=require(f);delete p.publisher;require("fs").writeFileSync(f,JSON.stringify(p))' "$d/package.json"
-          rc=0; (cd "$d" && "$GITHUB_WORKSPACE/node_modules/.bin/vsce" package --no-dependencies -o bad.vsix) > neg3.txt 2>&1 || rc=$?
-          cat neg3.txt
-          [ "$rc" != 0 ] || { echo "vsce packaged a manifest without a publisher"; exit 1; }
+          d="$RUNNER_TEMP/neg4"; mkdir -p "$d"
+          git ls-files | grep -vx .vscodeignore | while read -r f; do mkdir -p "$d/$(dirname "$f")"; cp "$f" "$d/$f"; done
+          (cd "$d" && "$GITHUB_WORKSPACE/node_modules/.bin/vsce" package --no-dependencies -o bad.vsix > /dev/null)
+          rc=0; sh test/check-vsix.sh "$d/bad.vsix" || rc=$?
+          [ "$rc" = 1 ] || { echo "package check passed a vsix that ships tests: rc=$rc"; exit 1; }
           echo "negative control 4 failed as required (rc=$rc)"
       - uses: actions/upload-artifact@v4
         with:
