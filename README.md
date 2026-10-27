@@ -110,7 +110,8 @@ The same check over every public aien-dev repository with Omega in it (686 files
 of the 26 repositories measured; list and commits in tree-sitter-omega's README): 360,275 of 360,275 tokens agree.
 With the previous grammars (TextMate here at `885db1b`, tree-sitter-omega `9b63612`) it was 360,144
 of 360,208: a function named `field` outside a layout (aienos.com `om/hive-render/render.om`) and a
-`note` inside text (babel `build/babel.om`). Before the change, `test/fixtures/` agreed on 105 of 108.
+`note` inside text (babel `build/babel.om`). With the previous grammars `test/fixtures/` agreed on 108
+of 117 tokens.
 `test/agree.js` now converts tree-sitter's byte columns to the editor's UTF-16 columns, so a line with
 a non-ASCII character no longer compares the wrong tokens.
 
