@@ -92,7 +92,8 @@ All of this runs in CI on GitHub's `ubuntu-24.04-arm` runner, with `omc` born fr
   VS Code test with that fake `omc`, the agreement check with the type words removed from the
   TextMate grammar, and a package built without `.vscodeignore`, which must fail `test/check-vsix.sh`.
 
-MEASURED at omega-mv `e5b32567` and tree-sitter-omega `9b63612` (local run on a DGX Spark, 2026-10-27):
+MEASURED at omega-mv `e5b32567` and tree-sitter-omega `9b63612` (local run on a DGX Spark, 2026-10-27, and the
+same numbers in CI [run 40432889449](https://github.com/aien-dev/vscode-omega/actions/runs/40432889449)):
 
 | files | tokens compared | TextMate and tree-sitter agree |
 |---|---:|---:|

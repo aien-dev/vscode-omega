@@ -7,12 +7,24 @@
       "description": "Highlighting that agrees with tree-sitter-omega, snippets that compile, omc diagnostics and om2 fmt formatting, shipped as a checksummed GitHub Release.",
       "status": "in_progress",
       "milestones": [
-        {"id": "g1.m1", "description": "100% token agreement with tree-sitter-omega on the 393 omc-accepted omega-mv files (local run, 2026-10-27)", "completed": true},
-        {"id": "g1.m2", "description": "CI green on ubuntu-24.04-arm with all four negative controls failing as required", "completed": false},
-        {"id": "g1.m3", "description": "v0.1.0 GitHub Release with .vsix and sha256", "completed": false}
+        {
+          "id": "g1.m1",
+          "description": "100% token agreement with tree-sitter-omega on the 393 omc-accepted omega-mv files (local run, 2026-10-27)",
+          "completed": true
+        },
+        {
+          "id": "g1.m2",
+          "description": "CI green on ubuntu-24.04-arm with all four negative controls failing as required (run 40432889449)",
+          "completed": true
+        },
+        {
+          "id": "g1.m3",
+          "description": "v0.1.0 GitHub Release with .vsix and sha256",
+          "completed": false
+        }
       ],
       "created_at": "2026-10-27T00:00:00Z",
-      "updated_at": "2026-10-27T01:30:00Z"
+      "updated_at": "2026-10-27T01:40:00Z"
     },
     {
       "id": "g2",
@@ -20,8 +32,16 @@
       "description": "Publish to the Visual Studio Marketplace and Open VSX under a publisher Drake owns.",
       "status": "blocked",
       "milestones": [
-        {"id": "g2.m1", "description": "Publisher accounts created by Drake (Marketplace publisher aien-dev, Open VSX namespace aien-dev)", "completed": false},
-        {"id": "g2.m2", "description": "First published version", "completed": false}
+        {
+          "id": "g2.m1",
+          "description": "Publisher accounts created by Drake (Marketplace publisher aien-dev, Open VSX namespace aien-dev)",
+          "completed": false
+        },
+        {
+          "id": "g2.m2",
+          "description": "First published version",
+          "completed": false
+        }
       ],
       "created_at": "2026-10-27T00:00:00Z",
       "updated_at": "2026-10-27T01:30:00Z"
