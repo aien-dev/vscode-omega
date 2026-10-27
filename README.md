@@ -106,10 +106,12 @@ commits yet):
 The 46 disagreements are all in files `omc` refuses: malformed hex numbers, which the two grammars split
 differently, and deliberately malformed test fixtures.
 
-The same check over every public aien-dev repository with Omega in it (686 files `omc` accepts, in 17
-of the 26 repositories measured; list and commits in tree-sitter-omega's README): 360,275 of 360,275 tokens agree.
-With the previous grammars (TextMate here at `885db1b`, tree-sitter-omega `9b63612`) it was 360,144
-of 360,208: a function named `field` outside a layout (aienos.com `om/hive-render/render.om`) and a
+The same check over every public aien-dev repository with Omega in it (948 files `omc` accepts, in 17
+of the 26 repositories measured, omega-rosetta at its `corpus/200` commit `a5b7330a`; list and
+commits in tree-sitter-omega's README): 423,864 of 423,864 tokens agree. Over all 357 omega-rosetta
+files, exercise stubs and `test.om` files included, 100,651 of 100,651 agree. With the previous
+grammars (TextMate here at `885db1b`, tree-sitter-omega `9b63612`) it was 423,733 of 423,797 on the
+accepted files: a function named `field` outside a layout (aienos.com `om/hive-render/render.om`) and a
 `note` inside text (babel `build/babel.om`). With the previous grammars `test/fixtures/` agreed on 108
 of 117 tokens.
 `test/agree.js` now converts tree-sitter's byte columns to the editor's UTF-16 columns, so a line with
