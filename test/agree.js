@@ -159,14 +159,17 @@ async function main() {
     for (const c of (caps.get(f) || new Map()).values()) {
       const tsc = TS_CLASS[c.name];
       if (!tsc) continue;
+      // tree-sitter columns count UTF-8 bytes; TextMate token indices count UTF-16 code units.
+      const line = lines[c.row] || '';
+      const col = Buffer.from(line, 'utf8').subarray(0, c.col).toString('utf8').length;
       const toks = tm[c.row] || [];
-      const t = toks.find((k) => k.startIndex <= c.col && c.col < k.endIndex);
+      const t = toks.find((k) => k.startIndex <= col && col < k.endIndex);
       const tmc = t ? tmClass(t.scopes) : 'plain';
       compared++;
       if (tmc === tsc) agree++;
       else {
-        const text = (lines[c.row] || '').slice(c.col).split(/[ \t]/)[0].slice(0, 24);
-        process.stdout.write(`${path.relative(srcDir, f)}\t${c.row + 1}:${c.col + 1}\t${text}\tts=${tsc}\ttm=${tmc}\n`);
+        const text = line.slice(col).split(/[ \t]/)[0].slice(0, 24);
+        process.stdout.write(`${path.relative(srcDir, f)}\t${c.row + 1}:${col + 1}\t${text}\tts=${tsc}\ttm=${tmc}\n`);
       }
     }
   }
