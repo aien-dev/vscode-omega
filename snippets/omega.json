@@ -1,0 +1,105 @@
+{
+  "function": {
+    "prefix": "fn",
+    "body": [
+      "fn ${1:name} ${2:x} ${3:uint} to ${4:uint}",
+      "$0",
+      "end"
+    ],
+    "description": "Function: fn NAME (PARAM TYPE)* to TYPE ... end"
+  },
+  "main": {
+    "prefix": "main",
+    "body": [
+      "fn main to int",
+      "$0",
+      "ret 0",
+      "end"
+    ],
+    "description": "Program entry; the int it returns is the exit status"
+  },
+  "if": {
+    "prefix": "if",
+    "body": [
+      "if ${1:eq ${2:a} ${3:b}}",
+      "$0",
+      "end"
+    ],
+    "description": "if CONDITION ... end"
+  },
+  "if else": {
+    "prefix": "ife",
+    "body": [
+      "if ${1:eq ${2:a} ${3:b}}",
+      "$4",
+      "else",
+      "$0",
+      "end"
+    ],
+    "description": "if CONDITION ... else ... end"
+  },
+  "while bound": {
+    "prefix": "while",
+    "body": [
+      "while ${1:ne ${2:b} 0} bound ${3:1000}",
+      "$0",
+      "end"
+    ],
+    "description": "while CONDITION bound N ... end (traps with code 4 after N passes)"
+  },
+  "for": {
+    "prefix": "for",
+    "body": [
+      "for ${1:i} ${2:ulong} ${3:10}",
+      "$0",
+      "end"
+    ],
+    "description": "for NAME TYPE COUNT ... end (NAME runs 0 .. COUNT-1)"
+  },
+  "for unroll": {
+    "prefix": "foru",
+    "body": [
+      "for ${1:i} ${2:uint} ${3:8} unroll",
+      "$0",
+      "end"
+    ],
+    "description": "OM-2: body compiled COUNT times (COUNT a number 1..64)"
+  },
+  "struct": {
+    "prefix": "struct",
+    "body": [
+      "struct ${1:P} ${2:x} ${3:long} ${4:y} ${5:long} end"
+    ],
+    "description": "One-line struct, before the first fn"
+  },
+  "layout": {
+    "prefix": "layout",
+    "body": [
+      "layout ${1:blk} ${2:8}",
+      "field ${3:lo} ${4:uint} at ${5:0} ${6|little,big|}",
+      "end"
+    ],
+    "description": "OM-2 external layout, before the first fn"
+  },
+  "text": {
+    "prefix": "text",
+    "body": [
+      "text ${1:msg} \"${2:hello}\\n\""
+    ],
+    "description": "Text literal (escapes \\n \\t \\\\ \\\")"
+  },
+  "om2 profile": {
+    "prefix": "om2",
+    "body": [
+      "om2"
+    ],
+    "description": "Opt this unit into OM-2 (must be the first line that is not a note)"
+  },
+  "note": {
+    "prefix": "note",
+    "body": [
+      "note ${0}"
+    ],
+    "description": "Comment line"
+  }
+}

@@ -1,0 +1,147 @@
+name: extension
+# Tests omc.js, the snippets and the extension inside VS Code against omc born from the 408-byte seed of aien-dev/omega-mv at
+# omega.ref, measures token agreement between the TextMate grammar and aien-dev/tree-sitter-omega at
+# tree-sitter-omega.ref over every omega-mv *.om file, packages the .vsix with vsce, and on a v* tag
+# publishes it with its sha256 as a GitHub Release. Four negative controls must fail.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  extension:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - name: Clone omega-mv at omega.ref and birth omc from the seed
+        run: |
+          set -eu
+          ref=$(awk '$1=="commit"{print $2}' omega.ref)
+          git clone --no-checkout https://github.com/aien-dev/omega-mv "$RUNNER_TEMP/omega-mv"
+          cd "$RUNNER_TEMP/omega-mv"
+          git checkout --detach "$ref"
+          git worktree add --detach "$RUNNER_TEMP/omega-build" "$ref"
+          cd "$RUNNER_TEMP/omega-build"
+          sh seed/omega-from-seed.sh > "$RUNNER_TEMP/seed.log" 2>&1 || { tail -40 "$RUNNER_TEMP/seed.log"; exit 1; }
+          sha256sum seed/out/omc
+          echo "OMC=$RUNNER_TEMP/omega-build/seed/out/omc" >> "$GITHUB_ENV"
+      - name: Unit tests with the real omc (diagnostics, fmt, snippets compile)
+        run: OMEGA_REQUIRE_OMC=1 npm test
+      - name: Negative control 1, an omc that accepts everything must fail the tests
+        run: |
+          set -u
+          rc=0; OMC=/usr/bin/true OMEGA_REQUIRE_OMC=1 node --test test/omc.test.js > neg1.txt 2>&1 || rc=$?
+          grep -E '^# (pass|fail)' neg1.txt
+          [ "$rc" != 0 ] || { echo "tests passed with a fake omc"; exit 1; }
+          echo "negative control 1 failed as required (rc=$rc)"
+      - name: Inside VS Code 1.90.0 (xvfb) the extension gives the omc diagnostic and formats
+        run: |
+          set -eu
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libnss3 libgbm1 libasound2t64 libgtk-3-0t64 libxkbfile1 libsecret-1-0 > /dev/null
+          xvfb-run -a npm run test:vscode 2>&1 | tee vscode-test.txt
+          grep -q '^PASS diagnostic 3 omc error 16' vscode-test.txt
+          grep -q '^PASS format' vscode-test.txt
+      - name: Negative control 2, inside VS Code a fake omc must fail the diagnostic check
+        run: |
+          set -u
+          rc=0; OMC=/usr/bin/true xvfb-run -a npm run test:vscode > neg-vscode.txt 2>&1 || rc=$?
+          grep -E 'PASS|AssertionError|failed' neg-vscode.txt || true
+          [ "$rc" != 0 ] || { echo "VS Code test passed with a fake omc"; exit 1; }
+          echo "negative control 2 failed as required (rc=$rc)"
+      - name: tree-sitter-omega at tree-sitter-omega.ref
+        run: |
+          set -eu
+          ref=$(awk '$1=="commit"{print $2}' tree-sitter-omega.ref)
+          git clone --no-checkout https://github.com/aien-dev/tree-sitter-omega "$RUNNER_TEMP/ts"
+          cd "$RUNNER_TEMP/ts"
+          git checkout --detach "$ref"
+          npm ci --ignore-scripts
+          (cd node_modules/tree-sitter-cli && node install.js)
+          sha256sum -c tree-sitter-cli.sha256
+          sh scripts/coverage.sh "$RUNNER_TEMP/omega-mv" "$OMC" > "$RUNNER_TEMP/coverage.tsv"
+          grep '^COVERAGE' "$RUNNER_TEMP/coverage.tsv"
+          awk -F'\t' '$2=="omc=accept"{print $1}' "$RUNNER_TEMP/coverage.tsv" > "$RUNNER_TEMP/accepted.txt"
+          wc -l < "$RUNNER_TEMP/accepted.txt"
+      - name: TextMate vs tree-sitter agreement (omc-accepted files must agree 100%; all files reported)
+        run: |
+          set -eu
+          node test/agree.js --ts "$RUNNER_TEMP/ts" --src "$RUNNER_TEMP/omega-mv" --min 0 > agree-all.txt
+          tail -2 agree-all.txt
+          node test/agree.js --ts "$RUNNER_TEMP/ts" --src "$RUNNER_TEMP/omega-mv" --files "$RUNNER_TEMP/accepted.txt" --min 100 > agree-accepted.txt \
+            || { cat agree-accepted.txt; exit 1; }
+          tail -2 agree-accepted.txt
+          { echo '```'; echo "all files:"; tail -2 agree-all.txt; echo "omc-accepted files:"; tail -2 agree-accepted.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Negative control 3, a TextMate grammar without the type words must fail agreement
+        run: |
+          set -u
+          node -e '
+            const g = require("./syntaxes/omega.tmLanguage.json");
+            const w = g.repository.words.patterns, n = w.length;
+            g.repository.words.patterns = w.filter((p) => p.name !== "support.type.builtin.omega");
+            if (g.repository.words.patterns.length !== n - 1) process.exit(3);
+            require("fs").writeFileSync(process.env.RUNNER_TEMP + "/mutant.json", JSON.stringify(g));'
+          rc=0; node test/agree.js --ts "$RUNNER_TEMP/ts" --src "$RUNNER_TEMP/omega-mv" --files "$RUNNER_TEMP/accepted.txt" \
+            --grammar "$RUNNER_TEMP/mutant.json" --min 100 > neg2.txt || rc=$?
+          tail -2 neg2.txt
+          [ "$rc" = 1 ] || { echo "mutated grammar was not caught: rc=$rc"; exit 1; }
+          echo "negative control 3 failed as required (rc=$rc)"
+      - name: Package the .vsix with vsce
+        run: |
+          set -eu
+          v=$(node -p 'require("./package.json").version')
+          npx --no-install vsce package --no-dependencies -o "omega-$v.vsix"
+          sha256sum "omega-$v.vsix" | tee "omega-$v.vsix.sha256"
+          unzip -l "omega-$v.vsix"
+          for f in extension/package.json extension/extension.js extension/omc.js extension/syntaxes/omega.tmLanguage.json \
+                   extension/language-configuration.json extension/snippets/omega.json extension/LICENSE.txt; do
+            unzip -l "omega-$v.vsix" | grep -q " $f\$" || { echo "missing $f"; exit 1; }
+          done
+          if unzip -l "omega-$v.vsix" | grep -Eq ' extension/(test|node_modules)/'; then echo "tests or node_modules shipped"; exit 1; fi
+      - name: Negative control 4, vsce refuses a manifest without a publisher
+        run: |
+          set -u
+          d="$RUNNER_TEMP/neg3"; mkdir -p "$d"
+          cp -r package.json extension.js omc.js syntaxes snippets language-configuration.json LICENSE README.md "$d/"
+          node -e 'const f=process.argv[1];const p=require(f);delete p.publisher;require("fs").writeFileSync(f,JSON.stringify(p))' "$d/package.json"
+          rc=0; (cd "$d" && "$GITHUB_WORKSPACE/node_modules/.bin/vsce" package --no-dependencies -o bad.vsix) > neg3.txt 2>&1 || rc=$?
+          cat neg3.txt
+          [ "$rc" != 0 ] || { echo "vsce packaged a manifest without a publisher"; exit 1; }
+          echo "negative control 4 failed as required (rc=$rc)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: |
+            omega-*.vsix
+            omega-*.vsix.sha256
+            agree-all.txt
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: extension
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: vsix
+      - name: Check the tag matches package.json, then publish the Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          v=$(node -p 'require("./package.json").version')
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "tag $GITHUB_REF_NAME != package.json $v"; exit 1; }
+          sha256sum -c "omega-$v.vsix.sha256"
+          gh release create "$GITHUB_REF_NAME" "omega-$v.vsix" "omega-$v.vsix.sha256" \
+            --title "Omega for VS Code $v" \
+            --notes "Install: download both files, then \`sha256sum -c omega-$v.vsix.sha256 && code --install-extension omega-$v.vsix\`. sha256: $(cut -d' ' -f1 "omega-$v.vsix.sha256")"

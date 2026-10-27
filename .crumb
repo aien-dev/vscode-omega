@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "name": "vscode-omega",
+  "purpose": "VS Code extension for Omega (.om): TextMate grammar checked token by token against aien-dev/tree-sitter-omega, language configuration, snippets compiled by omc in CI, and optional omc diagnostics and om2 fmt formatting.",
+  "layer": "tooling",
+  "parent": "aien-dev/omega-mv@e5b32567a7aff3ce594e3254a622a846a6cd190b",
+  "invariants": [
+    "The language is defined by omega-mv; omc is the authority on what is valid, and the extension only reports what omc says.",
+    "On every file omc accepts at omega.ref, the TextMate grammar and tree-sitter-omega at tree-sitter-omega.ref agree on every token class; CI fails otherwise.",
+    "Without an omc the extension highlights and stays silent; it never invents a diagnostic.",
+    "Releases carry the .vsix and its sha256, built by CI from the tagged commit; every negative control must fail."
+  ]
+}

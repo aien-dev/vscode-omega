@@ -1,0 +1,11 @@
+.github/**
+test/**
+node_modules/**
+package-lock.json
+.crumb
+.goals.json
+omega.ref
+tree-sitter-omega.ref
+*.vsix
+*.sha256
+.gitignore

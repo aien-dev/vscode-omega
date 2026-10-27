@@ -1,0 +1,100 @@
+{
+  "name": "omega",
+  "displayName": "Omega (.om)",
+  "description": "Syntax highlighting, snippets, and optional omc diagnostics and formatting for Omega (.om), the language of aien-dev/omega-mv.",
+  "version": "0.1.0",
+  "publisher": "aien-dev",
+  "license": "Apache-2.0 WITH LLVM-exception",
+  "author": {
+    "name": "Drake Stapleton",
+    "email": "drake@aienos.com"
+  },
+  "homepage": "https://github.com/aien-dev/vscode-omega#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aien-dev/vscode-omega.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aien-dev/vscode-omega/issues"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Formatters"
+  ],
+  "keywords": [
+    "omega",
+    "om",
+    "omc",
+    "aien"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "languages": [
+      {
+        "id": "omega",
+        "aliases": [
+          "Omega",
+          "omega"
+        ],
+        "extensions": [
+          ".om"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "omega",
+        "scopeName": "source.omega",
+        "path": "./syntaxes/omega.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "omega",
+        "path": "./snippets/omega.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "omega.check",
+        "title": "Omega: Check this file with omc"
+      }
+    ],
+    "configuration": {
+      "title": "Omega",
+      "properties": {
+        "omega.omcPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to `omc`. Empty means the first `omc` on `PATH`. omc is a static AArch64 Linux program; elsewhere point this at a wrapper such as `qemu-aarch64 /path/to/omc`."
+        },
+        "omega.diagnostics.onSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Compile the file with omc on save and show its error as a diagnostic (only when omc is found)."
+        },
+        "omega.omcTimeoutMs": {
+          "type": "number",
+          "default": 10000,
+          "description": "Stop omc after this many milliseconds."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "test": "node --test test/omc.test.js",
+    "test:vscode": "node test/vscode/run.js"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "4.0.0",
+    "vscode-oniguruma": "2.0.1",
+    "vscode-textmate": "9.3.2",
+    "@vscode/test-electron": "3.1.0"
+  }
+}

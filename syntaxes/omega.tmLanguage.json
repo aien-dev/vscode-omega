@@ -1,0 +1,217 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Omega",
+  "scopeName": "source.omega",
+  "fileTypes": [
+    "om"
+  ],
+  "comment": "Follows aien-dev/tree-sitter-omega grammar.js and queries/highlights.scm (word lists copied from there; CI checks token agreement over the omega-mv corpus).",
+  "patterns": [
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#profile"
+    },
+    {
+      "include": "#function-header"
+    },
+    {
+      "include": "#assignment-target"
+    },
+    {
+      "include": "#line-keyword"
+    },
+    {
+      "include": "#words"
+    }
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.line.note.omega",
+      "match": "(?:^|(?<=[ \\t]))note(?:[ \\t].*)?$"
+    },
+    "profile": {
+      "match": "^\\s*(om2|ir)(?![A-Za-z0-9_])((?:[ \\t]+[A-Za-z_][A-Za-z0-9_]*)*)[ \\t]*$",
+      "captures": {
+        "1": {
+          "name": "keyword.other.directive.omega"
+        },
+        "2": {
+          "name": "keyword.other.directive.omega"
+        }
+      }
+    },
+    "function-header": {
+      "begin": "^\\s*(?:(export)[ \\t]+)?(fn)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.omega"
+        },
+        "2": {
+          "name": "keyword.other.omega"
+        },
+        "3": {
+          "name": "entity.name.function.omega"
+        }
+      },
+      "end": "$",
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "match": "(?<![A-Za-z0-9_])to(?![A-Za-z0-9_])",
+          "name": "keyword.other.omega"
+        },
+        {
+          "include": "#words"
+        }
+      ]
+    },
+    "line-keyword": {
+      "patterns": [
+        {
+          "match": "^\\s*(if|else|while|for|break|continue)(?![A-Za-z0-9_])(?!\\s*=(?!=))",
+          "captures": {
+            "1": {
+              "name": "keyword.control.omega"
+            }
+          }
+        },
+        {
+          "match": "^\\s*(ret|exit|trap)(?![A-Za-z0-9_])(?!\\s*=(?!=))",
+          "captures": {
+            "1": {
+              "name": "keyword.control.return.omega"
+            }
+          }
+        },
+        {
+          "match": "^\\s*(put)(?![A-Za-z0-9_])(?!\\s*=(?!=))",
+          "captures": {
+            "1": {
+              "name": "support.function.builtin.omega"
+            }
+          }
+        },
+        {
+          "match": "^\\s*(end)(?![A-Za-z0-9_])",
+          "captures": {
+            "1": {
+              "name": "keyword.other.omega"
+            }
+          }
+        },
+        {
+          "match": "^\\s*(global|text|const|struct|layout|field|abstract|holds)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)(?!\\s*=(?!=))",
+          "captures": {
+            "1": {
+              "name": "keyword.other.omega"
+            },
+            "2": {
+              "name": "entity.name.type.omega"
+            }
+          }
+        }
+      ]
+    },
+    "words": {
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "include": "#string"
+        },
+        {
+          "name": "constant.numeric.float.omega",
+          "match": "(?<![A-Za-z0-9_])-?[0-9]+(?:\\.[0-9]+(?:[eE][+-]?[0-9]+)?(?:f32|f64)?|[eE][+-]?[0-9]+(?:f32|f64)?|(?:f32|f64))(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "constant.numeric.integer.omega",
+          "match": "(?<![A-Za-z0-9_])(?:0x[0-9a-f]+|-?[0-9]+)(?![A-Za-z0-9_])"
+        },
+        {
+          "match": "(?<![A-Za-z0-9_])(bound)(?![A-Za-z0-9_])",
+          "captures": {
+            "1": {
+              "name": "keyword.control.omega"
+            }
+          }
+        },
+        {
+          "match": "[ \\t](end)[ \\t]*$",
+          "captures": {
+            "1": {
+              "name": "keyword.other.omega"
+            }
+          }
+        },
+        {
+          "name": "constant.language.boolean.omega",
+          "match": "(?<![A-Za-z0-9_])(?:false|true)(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "support.type.builtin.omega",
+          "match": "(?<![A-Za-z0-9_])(?:ushort|uchar|ulong|short|bool|uint|byte|long|void|u16|u32|u64|i16|int|i32|i64|f32|f64|u8|i8)(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "keyword.operator.word.omega",
+          "match": "(?<![A-Za-z0-9_])(?:offsetof|bitcast|sizeof|fsqrt|rotr|rotl|fabs|fmin|fmax|add|sub|mul|div|rem|and|xor|shl|shr|neg|not|or|eq|ne|lt|le|gt|ge)(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "storage.modifier.omega",
+          "match": "(?<![A-Za-z0-9_])(?:inline|unroll|little|fresh|view|edit|own|out|big|ops|at)(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "keyword.other.omega",
+          "match": "(?<![A-Za-z0-9_])(?:invariant|requires|ensures|free|seal|open|part|new)(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "variable.language.result.omega",
+          "match": "(?<![A-Za-z0-9_])(?:result)(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "support.function.builtin.omega",
+          "match": "(?<![A-Za-z0-9_])(?:truncate|shutdown|mapwrite|sockname|execprog|peercred|readlnk|sockopt|envread|faccess|geteuid|getegid|getppid|getpgid|setpgid|mapdrop|mapread|devcall|mapaddr|maphold|mapbind|renames|killpid|pipefds|getdnts|connect|waitpid|sleepns|argread|socknew|makedir|pollfds|sendmsg|pwrite|random|envcnt|ftrunc|symlnk|getuid|getgid|fchdir|fdsync|setsid|getsid|syncfs|devctl|mapnew|uvmctl|mapget|mapset|realns|getpid|waitio|argcnt|fclose|fchmod|listen|accept|monons|unlink|write|pread|chdir|chmod|lstat|chown|umask|memfd|flock|rmdir|fstat|fsync|fseek|dupfd|fopen|read|stat|link|bind|recv|send|fork|get|len|cwd)(?![A-Za-z0-9_])"
+        },
+        {
+          "name": "keyword.operator.assignment.omega",
+          "match": "(?<=[ \\t])=(?=[ \\t]|$)"
+        },
+        {
+          "name": "punctuation.section.parens.omega",
+          "match": "[()]"
+        },
+        {
+          "name": "storage.modifier.unsized.omega",
+          "match": "(?<![^ \\t])\\*(?![^ \\t\\n])"
+        },
+        {
+          "name": "variable.other.omega",
+          "match": "[A-Za-z_][A-Za-z0-9_]*"
+        }
+      ]
+    },
+    "string": {
+      "name": "string.quoted.double.omega",
+      "begin": "\"",
+      "end": "\"|$",
+      "patterns": [
+        {
+          "name": "constant.character.escape.omega",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "assignment-target": {
+      "match": "^\\s*([A-Za-z_][A-Za-z0-9_]*)(?=[ \\t]*=(?!=))",
+      "captures": {
+        "1": {
+          "name": "variable.other.omega"
+        }
+      }
+    }
+  }
+}
