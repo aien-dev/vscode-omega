@@ -90,7 +90,7 @@ All of this runs in CI on GitHub's `ubuntu-24.04-arm` runner, with `omc` born fr
   CI fails otherwise.
 - Negative controls that must fail: the unit tests with a fake `omc` that accepts everything, the
   VS Code test with that fake `omc`, the agreement check with the type words removed from the
-  TextMate grammar, and `a package built without `.vscodeignore`, which must fail `test/check-vsix.sh`.
+  TextMate grammar, and a package built without `.vscodeignore`, which must fail `test/check-vsix.sh`.
 
 MEASURED at omega-mv `e5b32567` and tree-sitter-omega `9b63612` (local run on a DGX Spark, 2026-10-27):
 
