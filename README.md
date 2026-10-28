@@ -126,3 +126,16 @@ replacement for `extension.js`; it does not exist yet.
 ## Licence
 
 Apache-2.0 WITH LLVM-exception. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+## Human-Directed Agentic Engineering
+
+Development follows Human-Directed Agentic Engineering (HDAE): humans define goals,
+architecture, constraints, acceptance criteria, and stopping points; agents implement,
+execute checks, diagnose failures, and revise within those boundaries. Human review
+retains responsibility for claims, acceptance, and release decisions. This describes
+the development method, not a change to runtime autonomy or historical evidence.
+
+For the documented method and a systems-software case study, see Gregory M. Kurtzer
+(2026), *Ginux: Building an Independent Kernel That Runs Linux Userspace through
+Human-Directed Agentic Engineering*, technical report, v1, Zenodo,
+<https://doi.org/10.5281/zenodo.23682548>.
