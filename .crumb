@@ -1,13 +1,27 @@
 {
-  "schema_version": "1.0.0",
-  "name": "vscode-omega",
-  "purpose": "VS Code extension for Omega (.om): TextMate grammar checked token by token against aien-dev/tree-sitter-omega, language configuration, snippets compiled by omc in CI, and optional omc diagnostics and om2 fmt formatting.",
-  "layer": "tooling",
-  "parent": "aien-dev/omega-mv@e5b32567a7aff3ce594e3254a622a846a6cd190b",
+  "extensions": {
+    "generated": {
+      "children": [],
+      "children_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "compiled_at": "2026-10-28T21:30:38Z",
+      "compiler": "crumb-compile/1",
+      "digest": "sha256:cb94e3d4a23f5120850e126fc6f721e896890ce6cfe33ea6d4c9d4af289cd589",
+      "evidence_files": 0,
+      "evidence_root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "files": 21,
+      "generated_at_commit": "885db1b2f75c64b4c138bbf9cd4dbb91970340fc",
+      "source_tree": "sha256:646a27cc2f5b4234f455181fcfc71581028cf12077602b0dfee908ec2043bf05"
+    }
+  },
   "invariants": [
     "The language is defined by omega-mv; omc is the authority on what is valid, and the extension only reports what omc says.",
     "On every file omc accepts at omega.ref, the TextMate grammar and tree-sitter-omega at tree-sitter-omega.ref agree on every token class; CI fails otherwise.",
     "Without an omc the extension highlights and stays silent; it never invents a diagnostic.",
     "Releases carry the .vsix and its sha256, built by CI from the tagged commit; every negative control must fail."
-  ]
+  ],
+  "layer": "tooling",
+  "name": "vscode-omega",
+  "parent": "aien-dev/omega-mv@e5b32567a7aff3ce594e3254a622a846a6cd190b",
+  "purpose": "VS Code extension for Omega (.om): TextMate grammar checked token by token against aien-dev/tree-sitter-omega, language configuration, snippets compiled by omc in CI, and optional omc diagnostics and om2 fmt formatting.",
+  "schema_version": "1.0.0"
 }
