@@ -1,0 +1,11 @@
+note names that start with note, a note with a parenthesis, and note inside text
+text msg " note "
+text two "x\nnote add three\nfn"
+fn main to int
+  note
+note(x) y
+notes = int 2
+noted = add notes int 1
+ret sub noted int 3
+end
+note

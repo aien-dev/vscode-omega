@@ -1,0 +1,9 @@
+om2
+note field is a keyword on the lines of a layout.
+layout blk 8
+field lo uint at 0 little
+field hi uint at 4 big
+end
+fn main to int
+ret 0
+end

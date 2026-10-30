@@ -1,0 +1,17 @@
+note An OM-1 unit may name a function field: only a layout makes field a keyword.
+global buf uchar 64
+fn field a ulong to void
+put buf a 7
+end
+fn main to int
+b = ulong 1
+field add b 2
+field 4
+if ne get buf 3 7
+ret 1
+end
+if ne get buf 4 7
+ret 2
+end
+ret 0
+end

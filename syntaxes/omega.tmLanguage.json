@@ -17,6 +17,9 @@
       "include": "#function-header"
     },
     {
+      "include": "#layout"
+    },
+    {
       "include": "#assignment-target"
     },
     {
@@ -29,7 +32,7 @@
   "repository": {
     "comment": {
       "name": "comment.line.note.omega",
-      "match": "(?:^|(?<=[ \\t]))note(?:[ \\t].*)?$"
+      "match": "(?:^|(?<=[ \\t]))note(?:[ \\t\\r()].*)?$"
     },
     "profile": {
       "match": "^\\s*(om2|ir)(?![A-Za-z0-9_])((?:[ \\t]+[A-Za-z_][A-Za-z0-9_]*)*)[ \\t]*$",
@@ -104,7 +107,7 @@
           }
         },
         {
-          "match": "^\\s*(global|text|const|struct|layout|field|abstract|holds)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)(?!\\s*=(?!=))",
+          "match": "^\\s*(global|text|const|struct|abstract|holds)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)(?!\\s*=(?!=))",
           "captures": {
             "1": {
               "name": "keyword.other.omega"
@@ -113,6 +116,43 @@
               "name": "entity.name.type.omega"
             }
           }
+        }
+      ]
+    },
+    "layout": {
+      "comment": "`layout NAME SIZE`, `field` lines, `end`. `field` is a keyword only here: elsewhere an OM-1 unit may call a function named field.",
+      "begin": "^\\s*(layout)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)(?!\\s*=(?!=))",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.omega"
+        },
+        "2": {
+          "name": "entity.name.type.omega"
+        }
+      },
+      "end": "^\\s*(end)(?![A-Za-z0-9_])",
+      "endCaptures": {
+        "1": {
+          "name": "keyword.other.omega"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "match": "^\\s*(field)[ \\t]+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.omega"
+            },
+            "2": {
+              "name": "variable.other.member.omega"
+            }
+          }
+        },
+        {
+          "include": "#words"
         }
       ]
     },

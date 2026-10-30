@@ -86,22 +86,36 @@ All of this runs in CI on GitHub's `ubuntu-24.04-arm` runner, with `omc` born fr
   `omc error 16` on line 3 and an accepted one gets none, and that Format Document returns `om2 fmt`'s text.
 - `test/agree.js`: the TextMate grammar against
   [tree-sitter-omega](https://github.com/aien-dev/tree-sitter-omega)'s highlight query, token by token,
-  over every `*.om` file in omega-mv. On the files `omc` accepts the two must agree on every token;
-  CI fails otherwise.
+  over every `*.om` file in omega-mv and over [`test/fixtures/`](test/fixtures) (edge cases `omc`
+  accepts: names that start with `note`, `note(...)`, `note` inside text, a function named `field`
+  next to a `layout`). On the files `omc` accepts the two must agree on every token; CI fails otherwise.
 - Negative controls that must fail: the unit tests with a fake `omc` that accepts everything, the
   VS Code test with that fake `omc`, the agreement check with the type words removed from the
   TextMate grammar, and a package built without `.vscodeignore`, which must fail `test/check-vsix.sh`.
 
-MEASURED at omega-mv `e5b32567` and tree-sitter-omega `9b63612` (local run on a DGX Spark, 2026-10-27, and the
-same numbers in CI [run 40432889449](https://github.com/aien-dev/vscode-omega/actions/runs/40432889449)):
+MEASURED at omega-mv `e5b32567` with the TextMate grammar of this commit and the tree-sitter-omega
+commit in `tree-sitter-omega.ref` (local run on a DGX Spark, 2026-10-28; CI has not run on these
+commits yet):
 
 | files | tokens compared | TextMate and tree-sitter agree |
 |---|---:|---:|
-| 393 files `omc` accepts | 118,468 | 118,468 (100%) |
-| all 811 `*.om` files | 211,399 | 211,358 (99.98%) |
+| 393 omega-mv files `omc` accepts | 118,468 | 118,468 (100%) |
+| all 811 omega-mv `*.om` files | 211,404 | 211,358 (99.978%) |
+| 3 files in `test/fixtures/` | 108 | 108 (100%) |
 
-The 41 disagreements are all in files `omc` refuses: malformed hex numbers, which the two grammars split
-differently, and incomplete test fixtures.
+The 46 disagreements are all in files `omc` refuses: malformed hex numbers, which the two grammars split
+differently, and deliberately malformed test fixtures.
+
+The same check over every public aien-dev repository with Omega in it (948 files `omc` accepts, in 17
+of the 26 repositories measured, omega-rosetta at its `corpus/200` commit `a5b7330a`; list and
+commits in tree-sitter-omega's README): 423,864 of 423,864 tokens agree. Over all 357 omega-rosetta
+files, exercise stubs and `test.om` files included, 100,651 of 100,651 agree. With the previous
+grammars (TextMate here at `885db1b`, tree-sitter-omega `9b63612`) it was 423,733 of 423,797 on the
+accepted files: a function named `field` outside a layout (aienos.com `om/hive-render/render.om`) and a
+`note` inside text (babel `build/babel.om`). With the previous grammars `test/fixtures/` agreed on 108
+of 117 tokens.
+`test/agree.js` now converts tree-sitter's byte columns to the editor's UTF-16 columns, so a line with
+a non-ASCII character no longer compares the wrong tokens.
 
 Not tested: the extension on Windows or macOS, the `qemu-aarch64` wrapper path, and VS Code versions
 other than 1.90.0.

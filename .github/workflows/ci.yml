@@ -69,11 +69,11 @@ jobs:
           npm ci --ignore-scripts
           (cd node_modules/tree-sitter-cli && node install.js)
           sha256sum -c tree-sitter-cli.sha256
-          sh scripts/coverage.sh "$RUNNER_TEMP/omega-mv" "$OMC" > "$RUNNER_TEMP/coverage.tsv"
+          sh scripts/coverage.sh --omc "$OMC" "$RUNNER_TEMP/omega-mv" > "$RUNNER_TEMP/coverage.tsv"
           grep '^COVERAGE' "$RUNNER_TEMP/coverage.tsv"
           awk -F'\t' '$2=="omc=accept"{print $1}' "$RUNNER_TEMP/coverage.tsv" > "$RUNNER_TEMP/accepted.txt"
           wc -l < "$RUNNER_TEMP/accepted.txt"
-      - name: TextMate vs tree-sitter agreement (omc-accepted files must agree 100%; all files reported)
+      - name: TextMate vs tree-sitter agreement (omc-accepted files and test/fixtures must agree 100%; all files reported)
         run: |
           set -eu
           node test/agree.js --ts "$RUNNER_TEMP/ts" --src "$RUNNER_TEMP/omega-mv" --min 0 > agree-all.txt
@@ -81,6 +81,11 @@ jobs:
           node test/agree.js --ts "$RUNNER_TEMP/ts" --src "$RUNNER_TEMP/omega-mv" --files "$RUNNER_TEMP/accepted.txt" --min 100 > agree-accepted.txt \
             || { cat agree-accepted.txt; exit 1; }
           tail -2 agree-accepted.txt
+          # test/fixtures: omc-accepted edge cases (names that start with note, note(...), note in text).
+          for f in test/fixtures/*.om; do "$OMC" < "$f" > /dev/null || { echo "omc refuses $f"; exit 1; }; done
+          node test/agree.js --ts "$RUNNER_TEMP/ts" --src test/fixtures --min 100 > agree-fixtures.txt \
+            || { cat agree-fixtures.txt; exit 1; }
+          tail -2 agree-fixtures.txt
           { echo '```'; echo "all files:"; tail -2 agree-all.txt; echo "omc-accepted files:"; tail -2 agree-accepted.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
       - name: Negative control 3, a TextMate grammar without the type words must fail agreement
         run: |
